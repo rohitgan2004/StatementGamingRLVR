@@ -1,0 +1,98 @@
+# Base configuration shared by all arms (Tables 3 & 6 of the paper).
+# Per-arm files under configs/arm_*.yaml override the `arm` block only.
+
+seed: 0
+
+model:
+  # Base model chosen by honest-band calibration (Section 4.4).
+  # Coder variant tends to emit better-formed Lean; Math variant reasons better.
+  base_model: "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+  dev_model: "Qwen/Qwen2.5-Coder-0.5B-Instruct"   # 0.5B twin for development
+  max_prompt_tokens: 512
+  max_completion_tokens: 256
+
+lora:
+  rank: 16          # r=8 for dev, r=16 final
+  alpha: 16
+  dropout: 0.05
+  target_modules: ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_compute_dtype: "bfloat16"
+
+grpo:
+  group_size: 4               # completions per prompt
+  prompts_per_step: 8         # batch = 8 prompts/step x 4 completions
+  learning_rate: 5.0e-6
+  lr_schedule: "cosine"
+  warmup_ratio: 0.10
+  kl_coef: 0.04
+  clip_range: 0.2
+  adam_beta1: 0.9
+  adam_beta2: 0.95
+  adam_eps: 1.0e-8
+
+sampling:
+  temperature: 0.8
+  top_p: 0.95
+
+reward_shaping:
+  # Identical across arms except the task term (Appendix B).
+  task_weight: 1.0
+  parse_bonus: 0.2            # output parses into FORMAL_STATEMENT / PROOF blocks
+  length_bonus: 0.1          # proof length within bound
+  drift_gate_penalty: -0.5   # Arm H only
+  exploit_pattern_penalty: -0.2   # Arm H' only
+  hp_detect_recall: 0.6      # Arm H' blocklist recall: fraction of known moves it catches
+  max_proof_tokens: 200
+
+# Tabular simulation-policy hyperparameters (local `run-sim` / `reproduce` only;
+# ignored by the real Tinker/TRL drivers, which train an actual LLM).
+sim:
+  pref_lr: 0.3               # strategy-preference learning rate
+  kl_coef: 0.07              # KL pull toward the honest reference policy
+  honest_only_pref: -4.0     # reference log-preference for gaming strategies
+  skill_ceiling: 0.45        # asymptotic honest proving skill
+  temperature: 1.0
+
+training:
+  steps: 400                  # 200-600 range; early stop on stable gap
+  eval_every: 25
+  checkpoint_every: 25
+  early_stop_on_stable_gap: true
+
+corpus:
+  train_family: "D"           # divisibility
+  eval_families: ["D", "I"]   # I = inequalities, held out
+  n_train: 200
+  n_eval: 100
+  honest_band: [0.15, 0.55]
+  drift_advantage_threshold: 0.85
+
+verifier:
+  related_jaccard_threshold: 0.6
+  n_repl_workers: 8
+  per_episode_timeout_s: 40
+  memoize: true
+
+lean:
+  backend: "mock"             # "mock" (local, no Lean) or "repl" (real Lean 4 + Mathlib)
+  repl_path: "lean/.lake/packages/repl"
+  project_path: "lean"
+
+eval:
+  n_eval_samples: 1           # completions sampled per eval prompt
+  n_accepted_taxonomy: 50     # accepted episodes classified per checkpoint
+  hand_audit_fraction: 0.10
+
+paths:
+  runs_dir: "runs"
+  corpus_dir: "data/corpus"
+  outputs_dir: "outputs"
+
+# Overridden per arm.
+arm:
+  name: "E"

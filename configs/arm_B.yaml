@@ -1,0 +1,9 @@
+# Arm B (Baseline): statement channel CLOSED. s_hat == s_star(x) fixed.
+# Reward = V(s_star, pi) * Hygiene. Honest pass rises; delta_hack ~ 0.
+extends: base.yaml
+arm:
+  name: "B"
+  channel: "closed"          # model does not control the statement
+  task_reward: "locked"      # V(s_star, pi) * Hygiene
+  gate_on_faithfulness: false
+  penalize_exploit_patterns: false

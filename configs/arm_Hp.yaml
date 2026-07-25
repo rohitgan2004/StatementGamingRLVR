@@ -1,0 +1,10 @@
+# Arm H' (ablation): statement channel OPEN, known-exploit-pattern penalty.
+# Reward = V_weak - 0.2 * ExploitPat(s_hat). Gap closes only partially;
+# drift redirects toward move families the detectors miss.
+extends: base.yaml
+arm:
+  name: "Hp"
+  channel: "open"
+  task_reward: "weak"
+  gate_on_faithfulness: false
+  penalize_exploit_patterns: true   # subtract penalty when known move patterns match

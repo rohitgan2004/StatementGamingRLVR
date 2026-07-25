@@ -1,0 +1,9 @@
+# Core environment / reward-loop dependencies (no GPU required).
+# For GPU training install one of the extras in pyproject.toml:
+#   pip install -e ".[trl]"      # single-GPU TRL/Unsloth path (paper A10G config)
+#   pip install -e ".[tinker]"   # Thinking Machines Tinker path
+numpy>=1.24
+pyyaml>=6.0
+tqdm>=4.65
+matplotlib>=3.7
+rich>=13.0

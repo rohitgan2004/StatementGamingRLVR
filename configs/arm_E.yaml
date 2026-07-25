@@ -1,0 +1,10 @@
+# Arm E (Exploitable): statement channel OPEN. Model emits s_hat.
+# Reward = V_weak(x, s_hat, pi). Strict verifier is a pure audit (zero reward weight).
+# Weak pass rises; strict lags; the hacking gap opens.
+extends: base.yaml
+arm:
+  name: "E"
+  channel: "open"
+  task_reward: "weak"        # V_weak = V(s_hat, pi) * Hygiene * Related
+  gate_on_faithfulness: false
+  penalize_exploit_patterns: false

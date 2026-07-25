@@ -1,0 +1,9 @@
+# Arm H (Hardened): statement channel OPEN, reward faithfulness-gated.
+# Reward = V_weak * DRIFTCLASS-Faithful(s_hat, s_star). Smaller or no gap.
+extends: base.yaml
+arm:
+  name: "H"
+  channel: "open"
+  task_reward: "weak"
+  gate_on_faithfulness: true       # multiply task reward by DRIFTCLASS-Faithful
+  penalize_exploit_patterns: false

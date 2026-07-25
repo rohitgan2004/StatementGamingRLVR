@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "leandrift"
+version = "0.1.0"
+description = "LEANDRIFT: measuring statement gaming in RLVR autoformalize-then-prove pipelines (Lean 4 / Mathlib)"
+readme = "README.md"
+# Env/reward-loop code runs on 3.9+. GPU training extras (torch/tinker) want 3.10+.
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Rohit Rajagopalan", email = "rohitgan2004@gmail.com" }]
+dependencies = [
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "tqdm>=4.65",
+    "matplotlib>=3.7",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+# Reward-loop workers / local dev. No GPU needed.
+env = []
+# Local TRL/Unsloth single-GPU path (paper's A10G config).
+trl = [
+    "torch>=2.3",
+    "transformers>=4.44",
+    "trl>=0.11",
+    "peft>=0.12",
+    "bitsandbytes>=0.43",
+    "accelerate>=0.33",
+    "datasets>=2.20",
+]
+# Thinking Machines Tinker path (managed distributed LoRA training).
+tinker = [
+    "tinker",
+    "tinker-cookbook",
+]
+dev = ["pytest>=7.4", "ruff>=0.5"]
+
+[project.scripts]
+leandrift = "leandrift.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
